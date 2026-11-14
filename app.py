@@ -19,10 +19,10 @@ app.config.update(
 )
 
 COURSES = [
-    ("P7", "Financial Reporting", "CPA Uganda", "Paper 7", "Build confidence in financial statements, standards and exam technique.", "12 weeks", "FR"),
-    ("P12", "Advanced Financial Reporting", "CPA Uganda", "Paper 12", "Work through complex reporting, groups and current reporting issues.", "14 weeks", "AFR"),
-    ("P13", "Public Financial Management", "CPA Uganda", "Paper 13", "Connect public-sector accounting, procurement and governance.", "12 weeks", "PFM"),
-    ("P18", "Integration of Knowledge", "CPA Uganda", "Paper 18", "Turn case evidence into clear, practical advice for decision-makers.", "10 weeks", "IoK"),
+    ("P7", "Financial Reporting", "CPA Uganda", "Paper 7", "Build confidence in financial statements, standards and exam technique.", "12 weeks", 0, "FR"),
+    ("P12", "Advanced Financial Reporting", "CPA Uganda", "Paper 12", "Work through complex reporting, groups and current reporting issues.", "14 weeks", 0, "AFR"),
+    ("P13", "Public Financial Management", "CPA Uganda", "Paper 13", "Connect public-sector accounting, procurement and governance.", "12 weeks", 0, "PFM"),
+    ("P18", "Integration of Knowledge", "CPA Uganda", "Paper 18", "Turn case evidence into clear, practical advice for decision-makers.", "10 weeks", 0, "IoK"),
 ]
 RESOURCES = [
     ("IAS 1: Presentation of Financial Statements", "Study note", "P7", "Financial Reporting", "18 min", "A concise guide to statement structure, classification and disclosure."),
@@ -54,7 +54,7 @@ def initialise():
         CREATE TABLE IF NOT EXISTS courses (
             code TEXT PRIMARY KEY, title TEXT NOT NULL, category TEXT NOT NULL,
             paper TEXT NOT NULL, description TEXT NOT NULL, duration TEXT NOT NULL,
-            short_name TEXT NOT NULL
+            progress INTEGER NOT NULL DEFAULT 0, short_name TEXT NOT NULL
         );
         CREATE TABLE IF NOT EXISTS resources (
             id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, kind TEXT NOT NULL,
@@ -82,7 +82,7 @@ def initialise():
         );
         """)
         if con.execute("SELECT COUNT(*) FROM courses").fetchone()[0] == 0:
-            con.executemany("INSERT INTO courses VALUES (?, ?, ?, ?, ?, ?, ?)", COURSES)
+            con.executemany("INSERT INTO courses VALUES (?, ?, ?, ?, ?, ?, ?, ?)", COURSES)
             con.executemany(
                 "INSERT INTO resources(title, kind, code, course, duration, summary) VALUES (?, ?, ?, ?, ?, ?)",
                 RESOURCES,
