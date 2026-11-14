@@ -119,6 +119,7 @@ def rows(sql, params=()):
         return [dict(row) for row in con.execute(sql, params).fetchall()]
 
 def current_user():
+    """Load the active account from SQLite so role changes take effect immediately."""
     user_id = session.get("user_id")
     if not user_id:
         return None
@@ -142,6 +143,7 @@ def login_required(view):
     return wrapped
 
 def roles_required(*allowed_roles):
+    """Require one of the allowed roles, using the account loaded for this request."""
     def decorate(view):
         @wraps(view)
         def wrapped(*args, **kwargs):
@@ -170,6 +172,7 @@ def new_csrf_token():
 
 @app.before_request
 def protect_post_requests():
+    """Reject state-changing requests without this session's CSRF token."""
     if request.method != "POST":
         return None
     expected = session.get("csrf_token", "")
