@@ -20,35 +20,17 @@ async function postJSON(url, data) {
   return result;
 }
 
-function rolePages(role) {
-  if (role === "student") return ["overview", "courses", "resources", "assignments", "progress"];
-  if (role === "tutor") return ["overview", "courses", "resources", "planner", "assignments"];
-  return ["overview", "courses", "resources", "planner", "assignments", "progress"];
-}
-
-function applyRole(role) {
-  document.body.dataset.role = role;
-  document.querySelectorAll("[data-roles]").forEach(element => {
-    const roles = element.dataset.roles.split(/\s+/);
-    element.hidden = !roles.includes(role);
-  });
-  if (!rolePages(role).includes(currentPage())) showPage("overview");
-}
-
-function currentPage() {
-  const current = document.querySelector(".page-view.active");
-  return current ? current.id.replace("view-", "") : "overview";
-}
-
 function showPage(page) {
-  const titles = {
-    overview: "Overview", courses: "Course directory", resources: "Learning resources",
-    planner: "Class planner", assignments: "Assignments", progress: "My progress"
-  };
-  if (!rolePages(document.body.dataset.role || "student").includes(page)) {
-    notify("That workspace is not available in this preview role.");
+  const nav = document.querySelector('.nav-item[data-page="' + page + '"]');
+  if (!nav || nav.hidden) {
+    notify("You do not have permission to open that workspace.");
     return;
   }
+  const titles = {
+    overview: "Overview", courses: "Course directory", resources: "Learning resources",
+    planner: "Class planner", assignments: "Assignments", progress: "My progress",
+    "user-admin": "User management"
+  };
   document.querySelectorAll(".page-view").forEach(node => node.classList.toggle("active", node.id === "view-" + page));
   document.querySelectorAll(".nav-item").forEach(node => node.classList.toggle("active", node.dataset.page === page));
   document.getElementById("page-title").textContent = titles[page] || "Overview";
@@ -123,13 +105,10 @@ function filterResources() {
 document.addEventListener("click", async event => {
   const page = event.target.closest("[data-page]");
   if (page) { showPage(page.dataset.page); return; }
-
   const toastButton = event.target.closest("[data-toast]");
   if (toastButton) { notify(toastButton.dataset.toast); return; }
-
   const course = event.target.closest("[data-course]");
   if (course) { openCourse(course.dataset.course); return; }
-
   const enroll = event.target.closest("[data-enroll]");
   if (enroll) {
     try {
@@ -140,7 +119,6 @@ document.addEventListener("click", async event => {
     } catch (error) { notify(error.message); }
     return;
   }
-
   const resource = event.target.closest("[data-resource]");
   if (resource) {
     try {
@@ -152,7 +130,6 @@ document.addEventListener("click", async event => {
     } catch (error) { notify(error.message); }
     return;
   }
-
   const assignment = event.target.closest("[data-assignment]");
   if (assignment) {
     const dialog = document.getElementById("task-dialog");
@@ -161,21 +138,24 @@ document.addEventListener("click", async event => {
     document.getElementById("submit-response").dataset.assignmentId = assignment.dataset.assignment;
     document.getElementById("dialog-answer").value = "";
     dialog.showModal();
+    return;
+  }
+  const saveUser = event.target.closest("[data-save-user]");
+  if (saveUser) {
+    const row = saveUser.closest("tr");
+    const role = row.querySelector(".admin-role").value;
+    const is_active = row.querySelector(".admin-active").checked;
+    try {
+      const result = await postJSON("/api/admin/users/" + saveUser.dataset.saveUser, {role, is_active});
+      notify(result.message);
+      setTimeout(() => location.reload(), 650);
+    } catch (error) { notify(error.message); }
   }
 });
 
 document.querySelector(".mobile-menu").addEventListener("click", () => {
   document.querySelector(".sidebar").classList.toggle("open");
 });
-
-document.getElementById("role-switch").addEventListener("change", async event => {
-  try {
-    const result = await postJSON("/api/role", {role: event.target.value});
-    applyRole(result.role);
-    notify("Preview switched to " + result.role + ".");
-  } catch (error) { notify(error.message); }
-});
-
 document.getElementById("course-search").addEventListener("input", filterCourses);
 document.getElementById("course-filter").addEventListener("change", filterCourses);
 document.getElementById("resource-search").addEventListener("input", filterResources);
@@ -186,7 +166,8 @@ document.getElementById("reset-search").addEventListener("click", () => {
   filterResources();
 });
 
-document.getElementById("class-form").addEventListener("submit", async event => {
+const classForm = document.getElementById("class-form");
+if (classForm) classForm.addEventListener("submit", async event => {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(event.currentTarget));
   try {
@@ -197,7 +178,8 @@ document.getElementById("class-form").addEventListener("submit", async event => 
   } catch (error) { notify(error.message); }
 });
 
-document.getElementById("assignment-form").addEventListener("submit", async event => {
+const assignmentForm = document.getElementById("assignment-form");
+if (assignmentForm) assignmentForm.addEventListener("submit", async event => {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(event.currentTarget));
   try {
@@ -222,12 +204,7 @@ document.getElementById("submit-response").addEventListener("click", async () =>
 const dateLabel = document.getElementById("date-label");
 if (dateLabel) {
   const now = new Date();
-  const hour = now.getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   const name = document.querySelector(".profile strong").textContent;
-  const heading = document.querySelector(".welcome-row h1");
-  heading.firstChild.textContent = greeting + ", " + name + " ";
+  document.querySelector(".welcome-row h1").firstChild.textContent = "Welcome, " + name + " ";
   dateLabel.textContent = now.toLocaleDateString("en-UG", {weekday:"long", month:"long", day:"numeric"}).toUpperCase() + " · YOUR LEARNING SPACE";
 }
-
-applyRole(document.body.dataset.role || "student");
