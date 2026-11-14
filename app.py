@@ -103,6 +103,9 @@ def initialise():
         ensure_column(con, "assignments", "created_by", "TEXT")
         ensure_column(con, "class_sites", "created_by", "TEXT")
         con.execute("CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)")
+        con.execute("CREATE INDEX IF NOT EXISTS idx_assignments_owner_due ON assignments(created_by, due_date)")
+        con.execute("CREATE INDEX IF NOT EXISTS idx_submissions_user_assignment ON submissions(user_name, assignment_id)")
+        con.execute("CREATE INDEX IF NOT EXISTS idx_class_sites_owner_id ON class_sites(created_by, id)")
         if con.execute("SELECT COUNT(*) FROM courses").fetchone()[0] == 0:
             con.executemany("INSERT INTO courses VALUES (?, ?, ?, ?, ?, ?, ?, ?)", COURSES)
             con.executemany(
