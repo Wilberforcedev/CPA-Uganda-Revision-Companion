@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>{% if mode == 'register' %}Create account{% else %}Sign in{% endif %} · Zaabu Learning Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+</head>
+<body>
+  <main class="auth-shell">
+    <a class="brand" href="/"><span class="brand-mark">Z</span><span><strong>zaabu</strong><small>LEARNING HUB</small></span></a>
+    <section class="auth-card">
+      <p class="eyebrow">CPA UGANDA LEARNING</p>
+      <h1>{% if mode == 'register' %}Create your account{% else %}Welcome back{% endif %}</h1>
+      <p class="intro">{% if mode == 'register' %}Create a student account to start building your study plan.{% else %}Sign in to continue to your courses and learning resources.{% endif %}</p>
+      {% if error %}<div class="auth-error" role="alert">{{ error }}</div>{% endif %}
+      <form method="post" action="{{ url_for(mode) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        {% if mode == 'register' %}<label>Full name<input name="display_name" autocomplete="name" minlength="2" maxlength="80" required autofocus></label>{% endif %}
+        <label>Email address<input type="email" name="email" autocomplete="username" maxlength="254" required {% if mode == 'login' %}autofocus{% endif %}></label>
+        <label>Password<input type="password" name="password" autocomplete="{% if mode == 'register' %}new-password{% else %}current-password{% endif %}" minlength="{% if mode == 'register' %}12{% else %}1{% endif %}" maxlength="128" required></label>
+        {% if mode == 'register' %}<p class="password-hint">Use at least 12 characters. New accounts start with Student access.</p>{% endif %}
+        <button class="submit-button" type="submit">{% if mode == 'register' %}Create student account{% else %}Sign in{% endif %}<span>→</span></button>
+      </form>
+      <p class="auth-switch">{% if mode == 'register' %}Already have an account? <a href="{{ url_for('login') }}">Sign in</a>{% else %}New to Zaabu? <a href="{{ url_for('register') }}">Create a student account</a>{% endif %}</p>
+    </section>
+    <p class="auth-foot">Tutor and administrator roles are assigned by an administrator.</p>
+  </main>
+</body>
+</html>
