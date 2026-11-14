@@ -18,7 +18,7 @@
       <button class="nav-item" data-page="resources"><span>◫</span>Learning resources</button>
       <button class="nav-item" data-roles="tutor admin" data-page="planner"><span>▦</span>Class planner</button>
       <button class="nav-item" data-page="assignments"><span>✓</span>Assignments <b></b></button>
-      <button class="nav-item" data-page="progress"><span>◴</span>My progress</button>
+      <button class="nav-item" data-roles="student admin" data-page="progress"><span>◴</span>My progress</button>
     </nav>
     <div class="sidebar-bottom">
       <div class="help-card"><span class="help-icon">?</span><strong>Need a hand?</strong><p>Find quick help for your learning journey.</p><button data-toast="Help centre is planned for a later build.">Visit help centre →</button></div>
@@ -92,7 +92,7 @@
       <section class="panel table-wrap"><table><thead><tr><th>Assignment</th><th>Paper</th><th>Due date</th><th>Status</th><th></th></tr></thead><tbody>{% for a in assignments %}<tr><td><strong>{{ a.title }}</strong><small>Short written response</small></td><td><span class="soft-tag">{{ a.course }}</span></td><td>{{ a.due_date }}</td><td><span class="status status-{{ a.status|lower|replace(' ', '-') }}">{{ a.status }}</span></td><td><button class="text-link" data-assignment="{{ a.id }}">Open task →</button></td></tr>{% endfor %}</tbody></table></section>
     </section>
 
-    <section class="page-view" id="view-progress">
+    <section class="page-view" id="view-progress" data-roles="student admin">
       <div class="page-intro"><p class="eyebrow">SMALL STEPS ADD UP</p><h1>My progress</h1><p>Your learning plan at a glance.</p></div>
       <div class="progress-grid"><section class="panel progress-summary"><span class="stat-icon mint">◴</span><p class="eyebrow">OVERALL COURSE COMPLETION</p><strong>{{ overall_progress }}%</strong><p>Progress is calculated from completed learning resources.</p><div class="track"><i style="width:{{ overall_progress }}%"></i></div></section><section class="panel learning-tip"><span class="tip-icon">✦</span><p class="eyebrow">A NOTE FOR THIS WEEK</p><h2>Consistency beats cramming.</h2><p>Try two focused study sessions before your next class. A short review after class helps ideas stick.</p></section></div>
       <section class="panel progress-courses"><div class="panel-heading"><div><p class="eyebrow">BY PAPER</p><h2>Course progress</h2></div><button class="text-link" data-page="courses">Explore courses →</button></div>{% for c in courses %}<div class="progress-course"><span class="course-symbol symbol-{{ loop.index }}">{{ c.short_name }}</span><div><strong>{{ c.title }}</strong><small>{{ c.paper }}</small></div><div class="track"><i style="width:{{ c.progress }}%"></i></div><b>{{ c.progress }}%</b></div>{% endfor %}</section>
