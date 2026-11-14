@@ -10,6 +10,7 @@ function notify(message) {
 }
 
 async function postJSON(url, data) {
+  // The server validates this token on every write request; UI checks are not authorization.
   const response = await fetch(url, {
     method: "POST",
     headers: {"Content-Type": "application/json", "X-CSRF-Token": csrfToken},
@@ -21,6 +22,7 @@ async function postJSON(url, data) {
 }
 
 function showPage(page) {
+  // Hide unavailable pages for usability; the API still enforces each role on the server.
   const nav = document.querySelector('.nav-item[data-page="' + page + '"]');
   if (!nav || nav.hidden) {
     notify("You do not have permission to open that workspace.");
