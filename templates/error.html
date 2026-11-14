@@ -1,0 +1,5 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{ code }} · Zaabu Learning Hub</title><link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}"></head>
+<body><main class="auth-shell"><a class="brand" href="/"><span class="brand-mark">Z</span><span><strong>zaabu</strong><small>LEARNING HUB</small></span></a><section class="auth-card"><p class="eyebrow">REQUEST NOT COMPLETED</p><h1>{{ code }}</h1><p class="intro">{{ message }}</p><a class="submit-button link-button" href="{{ url_for('home') if user else url_for('login') }}">Return to the learning hub <span>→</span></a></section></main></body>
+</html>
