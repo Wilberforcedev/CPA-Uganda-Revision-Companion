@@ -190,7 +190,7 @@ def login():
     email = normalize_email(request.form.get("email", ""))
     password = request.form.get("password", "")
     user = next(iter(rows("SELECT * FROM users WHERE email = ?", (email,))), None)
-    if not user or not user["is_active"] or not check_password_hash(user["password_hash"], password):
+    if not user or not user["is_active"] or len(password) > 128 or not check_password_hash(user["password_hash"], password):
         return render_template("auth.html", mode="login", csrf_token=csrf_token,
                                error="Email or password is incorrect."), 401
     session.clear()
@@ -210,7 +210,7 @@ def register():
     password = request.form.get("password", "")
     if len(display_name) < 2 or len(display_name) > 80:
         error = "Enter your name using 2 to 80 characters."
-    elif not valid_email(email):
+    elif len(email) > 254 or not valid_email(email):
         error = "Enter a valid email address."
     elif len(password) < 12 or len(password) > 128:
         error = "Choose a password between 12 and 128 characters."
