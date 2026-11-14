@@ -16,13 +16,14 @@
       <button class="nav-item active" data-page="overview"><span>⌂</span>Overview</button>
       <button class="nav-item" data-page="courses"><span>▤</span>Courses <i>4</i></button>
       <button class="nav-item" data-page="resources"><span>◫</span>Learning resources</button>
-      <button class="nav-item" data-roles="tutor admin" data-page="planner"><span>▦</span>Class planner</button>
+      <button class="nav-item" data-roles="tutor admin" {% if role not in ['tutor', 'admin'] %}hidden{% endif %} data-page="planner"><span>▦</span>Class planner</button>
       <button class="nav-item" data-page="assignments"><span>✓</span>Assignments <b></b></button>
-      <button class="nav-item" data-roles="student admin" data-page="progress"><span>◴</span>My progress</button>
+      <button class="nav-item" data-roles="student admin" {% if role not in ['student', 'admin'] %}hidden{% endif %} data-page="progress"><span>◴</span>My progress</button>
+      {% if role == 'admin' %}<button class="nav-item" data-page="user-admin"><span>⚙</span>User management</button>{% endif %}
     </nav>
     <div class="sidebar-bottom">
       <div class="help-card"><span class="help-icon">?</span><strong>Need a hand?</strong><p>Find quick help for your learning journey.</p><button data-toast="Help centre is planned for a later build.">Visit help centre →</button></div>
-      <div class="profile"><span class="avatar">PK</span><span><strong>{{ user_name }}</strong><small>CPA learner</small></span><button class="more">•••</button></div>
+      <div class="profile"><span class="avatar">{{ user.display_name[:2]|upper }}</span><span><strong>{{ user.display_name }}</strong><small>{{ role|title }} account</small></span></div>
     </div>
   </aside>
   <main class="main-area">
@@ -30,20 +31,14 @@
       <button class="mobile-menu" aria-label="Open navigation">☰</button>
       <div class="breadcrumb"><span>Zaabu Learning Hub</span><i>/</i><strong id="page-title">Overview</strong></div>
       <div class="top-actions">
-        <label class="role-preview">Preview as
-          <select id="role-switch" aria-label="Preview role">
-            <option value="student" {% if role == 'student' %}selected{% endif %}>Student</option>
-            <option value="tutor" {% if role == 'tutor' %}selected{% endif %}>Tutor</option>
-            <option value="admin" {% if role == 'admin' %}selected{% endif %}>Admin</option>
-          </select>
-        </label>
-        <button class="icon-button" aria-label="Notifications" data-toast="You are all caught up.">♧<i></i></button><span class="avatar small-avatar">PK</span>
+        <span class="role-badge">{{ role|title }}</span>
+        <form class="logout-form" method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="logout-button" type="submit">Sign out</button></form>
       </div>
     </header>
-    <div class="demo-banner"><strong>Preview environment</strong> Sample learner data only. Role switching is for demonstration.</div>
+    <div class="demo-banner"><strong>Signed in</strong> You are using the {{ role|title }} workspace.</div>
 
     <section class="page-view active" id="view-overview">
-      <div class="welcome-row"><div><p class="eyebrow" id="date-label">YOUR LEARNING SPACE</p><h1>Good evening, {{ user_name }} <span class="gold">✦</span></h1><p class="subheading">Keep your study plan moving. You’re building a strong week.</p></div><button class="button primary" data-page="courses">＋ Explore courses</button></div>
+      <div class="welcome-row"><div><p class="eyebrow" id="date-label">YOUR LEARNING SPACE</p><h1>Welcome, {{ user.display_name }} <span class="gold">✦</span></h1><p class="subheading">Keep your study plan moving. You’re building a strong week.</p></div><button class="button primary" data-page="courses">＋ Explore courses</button></div>
       <div class="hero-panel">
         <div class="hero-copy"><p class="hero-kicker">● &nbsp;YOUR NEXT LEARNING SESSION</p><h2>Make your next<br><em>breakthrough.</em></h2><p>Pick up where you left off with Advanced Financial Reporting.</p><button class="button hero-button" data-course="P12">Continue learning <span>→</span></button></div>
         <div class="hero-art" aria-hidden="true"><div class="orbit orbit-a"></div><div class="orbit orbit-b"></div><div class="book book-back"></div><div class="book book-front"><b>IFRS</b><small>FINANCIAL<br>REPORTING</small></div><span class="spark">✦</span><span class="art-caption">Learn at your pace</span></div>
@@ -78,7 +73,7 @@
       <div class="resource-grid" id="resource-directory">{% for r in resources %}<article class="resource-card" data-code="{{ r.code }}" data-search="{{ r.title|lower }} {{ r.summary|lower }}"><div class="resource-art art-{{ loop.index }}"><span>{{ r.code }}</span><b>{% if loop.index % 3 == 0 %}◈{% elif loop.index % 3 == 1 %}▤{% else %}✦{% endif %}</b></div><div class="resource-body"><div class="meta">{{ r.kind }} <i>·</i> {{ r.duration }}</div><h3>{{ r.title }}</h3><p>{{ r.summary }}</p><div class="resource-footer"><span>{{ r.course }}</span><button class="resource-open" data-resource="{{ r.id }}" {% if r.completed %}disabled{% endif %}>{% if r.completed %}Completed ✓{% else %}Mark complete →{% endif %}</button></div></div></article>{% endfor %}</div><p class="empty-state" id="resource-empty" hidden>No resources match those filters.</p>
     </section>
 
-    <section class="page-view" id="view-planner" data-roles="tutor admin">
+    <section class="page-view" id="view-planner" data-roles="tutor admin" {% if role not in ['tutor', 'admin'] %}hidden{% endif %}>
       <div class="page-intro"><p class="eyebrow">TUTOR WORKSPACE</p><h1>Class planner</h1><p>Bring courses, class meetings and assignments into one simple plan.</p></div>
       <div class="planner-grid"><section class="panel planner-main"><div class="panel-heading"><div><p class="eyebrow">YOUR CLASSES</p><h2>Class sites</h2></div><span class="soft-tag">{{ class_sites|length }} active</span></div>
         <div class="class-sites">{% for site in class_sites %}<article class="class-site"><span class="class-icon">▦</span><div><h3>{{ site.title }}</h3><p>{{ site.cohort }} <i>·</i> {{ site.meeting }}</p></div><button class="round-arrow" data-toast="Class site details are coming next.">↗</button></article>{% else %}<p class="muted">No class sites yet. Create one to organize a cohort.</p>{% endfor %}</div>
@@ -92,11 +87,19 @@
       <section class="panel table-wrap"><table><thead><tr><th>Assignment</th><th>Paper</th><th>Due date</th><th>Status</th><th></th></tr></thead><tbody>{% for a in assignments %}<tr><td><strong>{{ a.title }}</strong><small>Short written response</small></td><td><span class="soft-tag">{{ a.course }}</span></td><td>{{ a.due_date }}</td><td><span class="status status-{{ a.status|lower|replace(' ', '-') }}">{{ a.status }}</span></td><td><button class="text-link" data-assignment="{{ a.id }}">Open task →</button></td></tr>{% endfor %}</tbody></table></section>
     </section>
 
-    <section class="page-view" id="view-progress" data-roles="student admin">
+    <section class="page-view" id="view-progress" data-roles="student admin" {% if role not in ['student', 'admin'] %}hidden{% endif %}>
       <div class="page-intro"><p class="eyebrow">SMALL STEPS ADD UP</p><h1>My progress</h1><p>Your learning plan at a glance.</p></div>
       <div class="progress-grid"><section class="panel progress-summary"><span class="stat-icon mint">◴</span><p class="eyebrow">OVERALL COURSE COMPLETION</p><strong>{{ overall_progress }}%</strong><p>Progress is calculated from completed learning resources.</p><div class="track"><i style="width:{{ overall_progress }}%"></i></div></section><section class="panel learning-tip"><span class="tip-icon">✦</span><p class="eyebrow">A NOTE FOR THIS WEEK</p><h2>Consistency beats cramming.</h2><p>Try two focused study sessions before your next class. A short review after class helps ideas stick.</p></section></div>
       <section class="panel progress-courses"><div class="panel-heading"><div><p class="eyebrow">BY PAPER</p><h2>Course progress</h2></div><button class="text-link" data-page="courses">Explore courses →</button></div>{% for c in courses %}<div class="progress-course"><span class="course-symbol symbol-{{ loop.index }}">{{ c.short_name }}</span><div><strong>{{ c.title }}</strong><small>{{ c.paper }}</small></div><div class="track"><i style="width:{{ c.progress }}%"></i></div><b>{{ c.progress }}%</b></div>{% endfor %}</section>
     </section>
+    {% if role == 'admin' %}
+    <section class="page-view" id="view-user-admin">
+      <div class="page-intro"><p class="eyebrow">ACCESS CONTROL</p><h1>User management</h1><p>Set account roles and disable access when an account should no longer sign in.</p></div>
+      <section class="panel table-wrap"><table class="user-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Account</th><th></th></tr></thead><tbody>
+        {% for account in admin_users %}<tr data-user-row="{{ account.id }}"><td><strong>{{ account.display_name }}</strong><small>Joined {{ account.created_at[:10] }}</small></td><td>{{ account.email }}</td><td><select class="admin-role" aria-label="Role for {{ account.email }}"><option value="student" {% if account.role == 'student' %}selected{% endif %}>Student</option><option value="tutor" {% if account.role == 'tutor' %}selected{% endif %}>Tutor</option><option value="admin" {% if account.role == 'admin' %}selected{% endif %}>Admin</option></select></td><td><label class="active-toggle"><input class="admin-active" type="checkbox" {% if account.is_active %}checked{% endif %}> Active</label></td><td><button class="button outline small" data-save-user="{{ account.id }}">Save</button></td></tr>{% endfor %}
+      </tbody></table></section>
+    </section>
+    {% endif %}
   </main>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
