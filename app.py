@@ -194,7 +194,7 @@ def course_detail(code):
     if not course:
         return jsonify(error="Course not found."), 404
     resources = rows("SELECT * FROM resources WHERE code = ? ORDER BY id", (code,))
-    completed = {r[0] for r in rows(
+    completed = {r["resource_id"] for r in rows(
         "SELECT resource_id FROM completions WHERE user_name = ?", (current_user(),)
     )}
     for resource in resources:
