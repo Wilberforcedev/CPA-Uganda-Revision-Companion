@@ -73,6 +73,7 @@
       <div class="resource-grid" id="resource-directory">{% for r in resources %}<article class="resource-card" data-code="{{ r.code }}" data-search="{{ r.title|lower }} {{ r.summary|lower }}"><div class="resource-art art-{{ loop.index }}"><span>{{ r.code }}</span><b>{% if loop.index % 3 == 0 %}◈{% elif loop.index % 3 == 1 %}▤{% else %}✦{% endif %}</b></div><div class="resource-body"><div class="meta">{{ r.kind }} <i>·</i> {{ r.duration }}</div><h3>{{ r.title }}</h3><p>{{ r.summary }}</p><div class="resource-footer"><span>{{ r.course }}</span><button class="resource-open" data-resource="{{ r.id }}" {% if r.completed %}disabled{% endif %}>{% if r.completed %}Completed ✓{% else %}Mark complete →{% endif %}</button></div></div></article>{% endfor %}</div><p class="empty-state" id="resource-empty" hidden>No resources match those filters.</p>
     </section>
 
+    {% if role in ['tutor', 'admin'] %}
     <section class="page-view" id="view-planner" data-roles="tutor admin" {% if role not in ['tutor', 'admin'] %}hidden{% endif %}>
       <div class="page-intro"><p class="eyebrow">TUTOR WORKSPACE</p><h1>Class planner</h1><p>Bring courses, class meetings and assignments into one simple plan.</p></div>
       <div class="planner-grid"><section class="panel planner-main"><div class="panel-heading"><div><p class="eyebrow">YOUR CLASSES</p><h2>Class sites</h2></div><span class="soft-tag">{{ class_sites|length }} active</span></div>
@@ -81,17 +82,24 @@
       </section>
       <section class="panel assignment-builder"><p class="eyebrow">SHARE A TASK</p><h2>New assignment</h2><p class="muted">Publish a short task for your learners.</p><form id="assignment-form"><label>Assignment title<input name="title" placeholder="e.g. IAS 1 practice" required></label><label>Paper<select name="course" required><option value="">Choose paper</option><option value="P7">P7 · Financial Reporting</option><option value="P12">P12 · Advanced Financial Reporting</option><option value="P13">P13 · Public Financial Management</option><option value="P18">P18 · Integration of Knowledge</option></select></label><label>Due date<input name="due_date" type="date" required></label><button class="button primary full">Publish assignment <span>→</span></button></form></section></div>
     </section>
+    {% endif %}
+
+    
 
     <section class="page-view" id="view-assignments">
       <div class="page-intro"><p class="eyebrow">YOUR NEXT STEPS</p><h1>Assignments</h1><p>See what is due and keep a record of your written work.</p></div>
       <section class="panel table-wrap"><table><thead><tr><th>Assignment</th><th>Paper</th><th>Due date</th><th>Status</th><th></th></tr></thead><tbody>{% for a in assignments %}<tr><td><strong>{{ a.title }}</strong><small>Short written response</small></td><td><span class="soft-tag">{{ a.course }}</span></td><td>{{ a.due_date }}</td><td><span class="status status-{{ a.status|lower|replace(' ', '-') }}">{{ a.status }}</span></td><td><button class="text-link" data-assignment="{{ a.id }}">Open task →</button></td></tr>{% endfor %}</tbody></table></section>
     </section>
 
+    {% if role in ['student', 'admin'] %}
     <section class="page-view" id="view-progress" data-roles="student admin" {% if role not in ['student', 'admin'] %}hidden{% endif %}>
       <div class="page-intro"><p class="eyebrow">SMALL STEPS ADD UP</p><h1>My progress</h1><p>Your learning plan at a glance.</p></div>
       <div class="progress-grid"><section class="panel progress-summary"><span class="stat-icon mint">◴</span><p class="eyebrow">OVERALL COURSE COMPLETION</p><strong>{{ overall_progress }}%</strong><p>Progress is calculated from completed learning resources.</p><div class="track"><i style="width:{{ overall_progress }}%"></i></div></section><section class="panel learning-tip"><span class="tip-icon">✦</span><p class="eyebrow">A NOTE FOR THIS WEEK</p><h2>Consistency beats cramming.</h2><p>Try two focused study sessions before your next class. A short review after class helps ideas stick.</p></section></div>
       <section class="panel progress-courses"><div class="panel-heading"><div><p class="eyebrow">BY PAPER</p><h2>Course progress</h2></div><button class="text-link" data-page="courses">Explore courses →</button></div>{% for c in courses %}<div class="progress-course"><span class="course-symbol symbol-{{ loop.index }}">{{ c.short_name }}</span><div><strong>{{ c.title }}</strong><small>{{ c.paper }}</small></div><div class="track"><i style="width:{{ c.progress }}%"></i></div><b>{{ c.progress }}%</b></div>{% endfor %}</section>
     </section>
+    {% endif %}
+
+    
     {% if role == 'admin' %}
     <section class="page-view" id="view-user-admin">
       <div class="page-intro"><p class="eyebrow">ACCESS CONTROL</p><h1>User management</h1><p>Set account roles and disable access when an account should no longer sign in.</p></div>
